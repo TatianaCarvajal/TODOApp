@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class TodoListViewController: UIViewController {
     
@@ -22,7 +23,11 @@ class TodoListViewController: UIViewController {
         static let tableViewPadding = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
     
-    init() {
+    private let viewModel: TodoListViewModel
+    var cancellables = Set<AnyCancellable>()
+    
+    init(viewModel: TodoListViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -30,13 +35,29 @@ class TodoListViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private var activitys: [TodoItem] = [TodoItem(activity: "Estudiar", date: .now), TodoItem(activity: "Leer", date: .now), TodoItem(activity: "Comer", date: .now), TodoItem(activity: "Jugar", date: .now)]
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .cyan
+        setupSuscribers()
         setupTableView()
-     
+        viewModel.loadActivities()
+    }
+    
+    private func setupSuscribers() {
+        viewModel.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [ unowned self ] state in
+                switch state {
+                case .idle: break
+                case .fetching:
+                    // TODO: show un spinner(ActivityIndicator) o una animación de Lottie
+                    print("qoijeqwoje")
+                case .refresh:
+                    // Stop spinner animation
+                    self.tableView.reloadData()
+                }
+            }
+            .store(in: &cancellables)
     }
     
     private func setupTableView() {
@@ -52,7 +73,7 @@ class TodoListViewController: UIViewController {
 extension TodoListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return activitys.count
+        return viewModel.activities.count
     }
     
     
@@ -61,13 +82,10 @@ extension TodoListViewController: UITableViewDataSource {
             
             return UITableViewCell()
         }
-        let item = activitys[indexPath.row]
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/YYYY"
-        let date = formatter.string(from: item.date)
-        cell.configureCell(task: item.activity, date: date)
+        
+        let title = viewModel.getActivityTitle(pos: indexPath.row)
+        let formattedDate = viewModel.getFormattedDate(pos: indexPath.row)
+        cell.configureCell(task: title, date: formattedDate)
         return cell
     }
-    
-    
 }
