@@ -15,6 +15,7 @@ class TodoListViewController: UIViewController {
         let tableView = UITableView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.register(TodoItemTableViewCell.self, forCellReuseIdentifier: TodoItemTableViewCell.cellIdentifier)
         return tableView
     }()
@@ -87,5 +88,24 @@ extension TodoListViewController: UITableViewDataSource {
         let formattedDate = viewModel.getFormattedDate(pos: indexPath.row)
         cell.configureCell(task: title, date: formattedDate)
         return cell
+    }
+}
+
+extension TodoListViewController: UITableViewDelegate {
+    
+    private func handleMoveToTrash() {
+        print("Moved to trash")
+    }
+    
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let action = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
+            self?.handleMoveToTrash()
+            completionHandler(true)
+        }
+        action.backgroundColor = .red
+        let configuration = UIImage.SymbolConfiguration(pointSize: 28)
+        let image = UIImage(systemName: "trash.circle.fill", withConfiguration: configuration)
+        action.image = image
+        return UISwipeActionsConfiguration(actions: [action])
     }
 }
