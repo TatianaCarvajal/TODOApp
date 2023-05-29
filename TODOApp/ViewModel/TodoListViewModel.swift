@@ -9,25 +9,15 @@ import Foundation
 import Combine
 
 class TodoListViewModel {
-    
-    enum State {
-        case idle, fetching, refresh
-    }
-    
-    private(set) var activities: [TodoItem] = []
-    @Published var state: State = .idle
+    @Published private(set) var activities: [TodoItem] = []
+    @Published var isRequestInFlight: Bool = false
+    @Published var error: Error? = nil
     
     func loadActivities() {
-        state = .fetching
+        isRequestInFlight = true
         Task {
-            let mock  = [
-                TodoItem(activity: "Estudiar", date: .now),
-                TodoItem(activity: "Leer", date: .now),
-                TodoItem(activity: "Comer", date: .now),
-                TodoItem(activity: "Jugar", date: .now)
-            ]
-            activities = mock
-            state = .refresh
+            // self.activities = datos que vengan de tu clase que sirva para usar coredata
+            isRequestInFlight = false
         }
     }
     
@@ -41,5 +31,19 @@ class TodoListViewModel {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd/YYYY"
         return formatter.string(from: item.date)
+    }
+    
+    func deleteTask(pos:Int) {
+        isRequestInFlight = true
+        Task {
+            // llamar a la clase de coredata que te remueve un elemento
+            isRequestInFlight = false
+        }
+    }
+    
+    func getAddOrEditViewController() -> AddOrEditTodoListViewController {
+        let viewModel = AddOrEditTodoListViewModel()
+        var addViewController = AddOrEditTodoListViewController(viewModel: viewModel)
+        return addViewController
     }
 }

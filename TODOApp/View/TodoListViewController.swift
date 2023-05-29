@@ -10,6 +10,10 @@ import Combine
 
 class TodoListViewController: UIViewController {
     
+    private struct Constants {
+        static let tableViewPadding = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        static let buttonPadding = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -20,9 +24,10 @@ class TodoListViewController: UIViewController {
         return tableView
     }()
     
-    private struct Constants {
-        static let tableViewPadding = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    }
+    private lazy var addButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(handleNavBarButton))
+        return button
+    }()
     
     private let viewModel: TodoListViewModel
     var cancellables = Set<AnyCancellable>()
@@ -39,42 +44,61 @@ class TodoListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .cyan
+        setupNavBar()
         setupSuscribers()
         setupTableView()
-        viewModel.loadActivities()
+        self.viewModel.loadActivities()
+    }
+    
+    private func setupNavBar() {
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    @objc private func handleNavBarButton() {
+        
+        let addOrEditViewController = viewModel.getAddOrEditViewController()
+        
+        if let navigationController = navigationController {
+            navigationController.pushViewController(addOrEditViewController, animated: true)
+        } else {
+            self.present(addOrEditViewController, animated: true)
+        }
     }
     
     private func setupSuscribers() {
-        viewModel.$state
+        self.viewModel.$isRequestInFlight
             .receive(on: DispatchQueue.main)
-            .sink { [ unowned self ] state in
-                switch state {
-                case .idle: break
-                case .fetching:
+            .sink { [ unowned self ] value in
+                if value {
                     // TODO: show un spinner(ActivityIndicator) o una animación de Lottie
-                    print("qoijeqwoje")
-                case .refresh:
+                } else {
                     // Stop spinner animation
-                    self.tableView.reloadData()
                 }
             }
-            .store(in: &cancellables)
+            .store(in: &self.cancellables)
+        
+        self.viewModel.$activities
+            .receive(on: DispatchQueue.main)
+            .sink { [ unowned self ] _ in
+                self.tableView.reloadData()
+            }
+            .store(in: &self.cancellables)
     }
     
     private func setupTableView() {
-        view.addSubview(tableView)
+        view.addSubview(self.tableView)
         
-        tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.tableViewPadding.left).isActive = true
-        tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: Constants.tableViewPadding.right).isActive = true
-        tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.tableViewPadding.top).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: Constants.tableViewPadding.bottom).isActive = true
+        self.tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.tableViewPadding.left).isActive = true
+        self.tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: Constants.tableViewPadding.right).isActive = true
+        self.tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.tableViewPadding.top).isActive = true
+        self.tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: Constants.tableViewPadding.bottom).isActive = true
     }
 }
 
 extension TodoListViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.activities.count
+        return self.viewModel.activities.count
     }
     
     
@@ -84,22 +108,17 @@ extension TodoListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        let title = viewModel.getActivityTitle(pos: indexPath.row)
-        let formattedDate = viewModel.getFormattedDate(pos: indexPath.row)
+        let title = self.viewModel.getActivityTitle(pos: indexPath.row)
+        let formattedDate = self.viewModel.getFormattedDate(pos: indexPath.row)
         cell.configureCell(task: title, date: formattedDate)
         return cell
     }
 }
 
 extension TodoListViewController: UITableViewDelegate {
-    
-    private func handleMoveToTrash() {
-        print("Moved to trash")
-    }
-    
     func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
-            self?.handleMoveToTrash()
+            self?.viewModel.deleteTask(pos: indexPath.row)
             completionHandler(true)
         }
         action.backgroundColor = .red
