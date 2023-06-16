@@ -10,6 +10,11 @@ import UIKit
 class TodoItemTableViewCell: UITableViewCell {
     
     static let cellIdentifier = "TodoItemTableViewCell"
+    
+    private struct Constants {
+        static let labelPadding = UIEdgeInsets(top: 10, left: 10, bottom: -10, right: -10)
+        static let dateLabelPadding = UIEdgeInsets(top: 20, left: 10, bottom: 0, right: -10)
+    }
 
     private lazy var taskLabel: UILabel = {
         let label = UILabel()
@@ -27,11 +32,6 @@ class TodoItemTableViewCell: UITableViewCell {
     }()
     
     
-    private struct Constants {
-        static let labelPadding = UIEdgeInsets(top: 10, left: 10, bottom: -10, right: -10)
-        static let dateLabelPadding = UIEdgeInsets(top: 20, left: 10, bottom: 0, right: -10)
-    }
-    
     private func setupLabel() {
         contentView.addSubview(taskLabel)
         
@@ -47,7 +47,6 @@ class TodoItemTableViewCell: UITableViewCell {
         dateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.dateLabelPadding.left).isActive = true
         dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: Constants.dateLabelPadding.right).isActive = true
         dateLabel.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: Constants.dateLabelPadding.top).isActive = true
-        
     }
     
     func configureCell(task: String, date: String) {

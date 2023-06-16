@@ -43,7 +43,7 @@ class TodoListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .cyan
+        view.backgroundColor = UIColor(named: "backgroundColor")
         setupNavBar()
         setupSuscribers()
         setupTableView()
@@ -58,11 +58,7 @@ class TodoListViewController: UIViewController {
         
         let addOrEditViewController = viewModel.getAddOrEditViewController()
         
-        if let navigationController = navigationController {
-            navigationController.pushViewController(addOrEditViewController, animated: true)
-        } else {
-            self.present(addOrEditViewController, animated: true)
-        }
+        self.present(addOrEditViewController, animated: true)
     }
     
     private func setupSuscribers() {
