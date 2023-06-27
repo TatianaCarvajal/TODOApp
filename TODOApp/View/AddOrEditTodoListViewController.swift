@@ -26,7 +26,7 @@ class AddOrEditTodoListViewController: UIViewController {
         textField.backgroundColor = .systemBackground
         textField.layer.cornerRadius = 12
         textField.translatesAutoresizingMaskIntoConstraints = false
-        
+        textField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         return textField
     }()
     
@@ -36,7 +36,7 @@ class AddOrEditTodoListViewController: UIViewController {
         calendar.layer.cornerRadius = 12
         calendar.backgroundColor = .systemBackground
         calendar.translatesAutoresizingMaskIntoConstraints = false
-        
+        calendar.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
         return calendar
     }()
     
@@ -49,6 +49,7 @@ class AddOrEditTodoListViewController: UIViewController {
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.black.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         
         return button
     }()
@@ -73,6 +74,17 @@ class AddOrEditTodoListViewController: UIViewController {
         setupTextField()
         setupCalendar()
         setupAddButton()
+    }
+    
+    @objc private func textFieldChanged() {
+        guard let text = textField.text else {
+            return
+        }
+        viewModel.update(text)
+    }
+    
+    @objc private func buttonAction() {
+        
     }
     
     private func setupTextField() {
@@ -102,4 +114,17 @@ class AddOrEditTodoListViewController: UIViewController {
         self.addButton.heightAnchor.constraint(equalToConstant: Constants.buttonHeight).isActive = true
     }
     
+}
+
+extension AddOrEditTodoListViewController: UICalendarSelectionSingleDateDelegate {
+    func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
+        guard let selectedDate = selection.selectedDate else {
+            return
+        }
+        let calendar = Calendar(identifier: .gregorian)
+        guard let date = calendar.date(from: selectedDate) else {
+            return
+        }
+        viewModel.update(date)
+    }
 }
