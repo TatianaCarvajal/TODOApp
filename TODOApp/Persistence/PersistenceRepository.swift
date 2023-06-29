@@ -9,8 +9,8 @@ import Foundation
 
 protocol PersistenceRepository {
     
-    func getAllTodoItems() -> [TodoItem]
-    func createTodoItem(title: String, date: Date)
-    func updateTodoItem(todoItem: TodoItem)
-    func deleteTodoItem(todoItem: TodoItem)
+    func getAllTodoItems() async throws -> [TodoItem]
+    func createTodoItem(title: String, date: Date) async throws
+    func updateTodoItem(todoItem: TodoItem, newTask: String, newDate: Date) async throws
+    func deleteTodoItem(todoItem: TodoItem) async throws
 }

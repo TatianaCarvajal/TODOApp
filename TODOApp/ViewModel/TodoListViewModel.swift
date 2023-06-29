@@ -12,11 +12,22 @@ class TodoListViewModel {
     @Published private(set) var activities: [TodoItem] = []
     @Published var isRequestInFlight: Bool = false
     @Published var error: Error? = nil
+    var persistence: PersistenceRepository
+    
+    init(persistence: PersistenceRepository) {
+        self.persistence = persistence
+    }
     
     func loadActivities() {
         isRequestInFlight = true
         Task {
-            // self.activities = datos que vengan de tu clase que sirva para usar coredata
+            do {
+                activities = try await persistence.getAllTodoItems()
+                print("funcionó", activities)
+            } catch {
+                self.error = error
+                print("falló")
+            }
             isRequestInFlight = false
         }
     }
@@ -36,13 +47,18 @@ class TodoListViewModel {
     func deleteTask(pos:Int) {
         isRequestInFlight = true
         Task {
-            // llamar a la clase de coredata que te remueve un elemento
+            do {
+               try await persistence.deleteTodoItem(todoItem: activities[pos])
+                loadActivities()
+            } catch {
+                self.error = error
+            }
             isRequestInFlight = false
         }
     }
     
     func getAddOrEditViewController() -> AddOrEditTodoListViewController {
-        let viewModel = AddOrEditTodoListViewModel()
+        let viewModel = AddOrEditTodoListViewModel(persistence: CoreDataManager())
         var addViewController = AddOrEditTodoListViewController(viewModel: viewModel)
         return addViewController
     }

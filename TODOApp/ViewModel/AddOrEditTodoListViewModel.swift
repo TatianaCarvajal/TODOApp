@@ -8,7 +8,7 @@
 import Foundation
 
 class AddOrEditTodoListViewModel {
-
+    
     var persistence: PersistenceRepository
     var taskTitle: String = ""
     var taskDate: Date = .now
@@ -28,6 +28,16 @@ class AddOrEditTodoListViewModel {
     }
     
     func createTask() {
-        persistence.createTodoItem(title: taskTitle, date: taskDate)
+        Task {
+            do {
+                try await persistence.createTodoItem(title: taskTitle, date: taskDate)
+                print("agregó tarea")
+            } catch {
+                print(error)
+            }
+        }
     }
+    
+  
 }
+

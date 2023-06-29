@@ -47,7 +47,6 @@ class AddOrEditTodoListViewController: UIViewController {
         button.setTitleColor(.black, for: .normal)
         button.layer.cornerRadius = 12
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.black.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         
@@ -84,7 +83,7 @@ class AddOrEditTodoListViewController: UIViewController {
     }
     
     @objc private func buttonAction() {
-        
+        viewModel.createTask()
     }
     
     private func setupTextField() {

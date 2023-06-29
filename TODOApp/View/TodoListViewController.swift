@@ -124,3 +124,4 @@ extension TodoListViewController: UITableViewDelegate {
         return UISwipeActionsConfiguration(actions: [action])
     }
 }
+

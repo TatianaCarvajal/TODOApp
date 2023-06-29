@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         self.window = UIWindow(windowScene: scene)
         
-        let navigationController = UINavigationController.init(rootViewController: TodoListViewController(viewModel: TodoListViewModel()))
+        let navigationController = UINavigationController.init(rootViewController: TodoListViewController(viewModel: TodoListViewModel(persistence: CoreDataManager())))
         self.window?.rootViewController = navigationController
         self.window?.makeKeyAndVisible()
     }
