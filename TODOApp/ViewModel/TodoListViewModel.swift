@@ -23,10 +23,8 @@ class TodoListViewModel {
         Task {
             do {
                 activities = try await persistence.getAllTodoItems()
-                print("funcionó", activities)
             } catch {
                 self.error = error
-                print("falló")
             }
             isRequestInFlight = false
         }
@@ -57,9 +55,5 @@ class TodoListViewModel {
         }
     }
     
-    func getAddOrEditViewController() -> AddOrEditTodoListViewController {
-        let viewModel = AddOrEditTodoListViewModel(persistence: CoreDataManager())
-        var addViewController = AddOrEditTodoListViewController(viewModel: viewModel)
-        return addViewController
-    }
+    
 }

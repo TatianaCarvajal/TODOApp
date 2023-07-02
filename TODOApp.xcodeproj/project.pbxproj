@@ -118,7 +118,6 @@
 				75A8C8E42A4B7AA000CE1896 /* Persistence */,
 				7546223D2A15A15000FB5784 /* ViewModel */,
 				7546223C2A15A0F500FB5784 /* View */,
-				7546223B2A15A0E800FB5784 /* Model */,
 				754622082A15810D00FB5784 /* AppDelegate.swift */,
 				7546220A2A15810D00FB5784 /* SceneDelegate.swift */,
 				754622142A15810F00FB5784 /* Assets.xcassets */,
@@ -160,6 +159,7 @@
 				75A44F5C2A1682FF00848DA8 /* TodoListViewController.swift */,
 				75A44F5E2A168D3A00848DA8 /* TodoItemTableViewCell.swift */,
 				7502DB522A254A0F00ABB0C8 /* AddOrEditTodoListViewController.swift */,
+				7546223B2A15A0E800FB5784 /* Model */,
 			);
 			path = View;
 			sourceTree = "<group>";

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Combine
 
 class AddOrEditTodoListViewController: UIViewController {
     
@@ -56,7 +57,9 @@ class AddOrEditTodoListViewController: UIViewController {
     
     
     let viewModel: AddOrEditTodoListViewModel
+    var cancellables = Set<AnyCancellable>()
     
+    weak var delegate: AddOrEditDelegate?
     
     init(viewModel: AddOrEditTodoListViewModel) {
         self.viewModel = viewModel
@@ -73,6 +76,7 @@ class AddOrEditTodoListViewController: UIViewController {
         setupTextField()
         setupCalendar()
         setupAddButton()
+        setupSuscribers()
     }
     
     @objc private func textFieldChanged() {
@@ -84,6 +88,27 @@ class AddOrEditTodoListViewController: UIViewController {
     
     @objc private func buttonAction() {
         viewModel.createTask()
+    }
+    
+    private func setupSuscribers() {
+        self.viewModel.$didCreateTask
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] value in
+                if value == true {
+                    delegate?.fetchNewTasks()
+                    self.dismiss(animated: true)
+                }
+                
+            }
+            .store(in: &self.cancellables)
+        self.viewModel.$error
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] error in
+                if error != nil {
+                    showAlert()
+                }
+            }
+            .store(in: &self.cancellables)
     }
     
     private func setupTextField() {
@@ -113,6 +138,12 @@ class AddOrEditTodoListViewController: UIViewController {
         self.addButton.heightAnchor.constraint(equalToConstant: Constants.buttonHeight).isActive = true
     }
     
+    private func showAlert() {
+        let alert: UIAlertController = UIAlertController(title: "Error", message: "Not Found", preferredStyle: .alert)
+        let cancel: UIAlertAction = UIAlertAction(title: "Cancel", style: .cancel)
+        alert.addAction(cancel)
+        self.present(alert, animated: true, completion: nil)
+    }
 }
 
 extension AddOrEditTodoListViewController: UICalendarSelectionSingleDateDelegate {

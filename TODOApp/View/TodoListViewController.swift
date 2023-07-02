@@ -8,6 +8,10 @@
 import UIKit
 import Combine
 
+protocol AddOrEditDelegate: AnyObject {
+    func fetchNewTasks()
+}
+
 class TodoListViewController: UIViewController {
     
     private struct Constants {
@@ -56,7 +60,7 @@ class TodoListViewController: UIViewController {
     
     @objc private func handleNavBarButton() {
         
-        let addOrEditViewController = viewModel.getAddOrEditViewController()
+        let addOrEditViewController = self.getAddOrEditViewController()
         
         self.present(addOrEditViewController, animated: true)
     }
@@ -66,7 +70,7 @@ class TodoListViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [ unowned self ] value in
                 if value {
-                    // TODO: show un spinner(ActivityIndicator) o una animación de Lottie
+                    // TODO: show un spinner(ActivityIndicator) 
                 } else {
                     // Stop spinner animation
                 }
@@ -79,6 +83,15 @@ class TodoListViewController: UIViewController {
                 self.tableView.reloadData()
             }
             .store(in: &self.cancellables)
+        
+        self.viewModel.$error
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] error in
+                if error != nil {
+                    showAlert()
+                }
+            }
+            .store(in: &self.cancellables)
     }
     
     private func setupTableView() {
@@ -88,6 +101,20 @@ class TodoListViewController: UIViewController {
         self.tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: Constants.tableViewPadding.right).isActive = true
         self.tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.tableViewPadding.top).isActive = true
         self.tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: Constants.tableViewPadding.bottom).isActive = true
+    }
+    
+    private func getAddOrEditViewController() -> AddOrEditTodoListViewController {
+        let viewModel = AddOrEditTodoListViewModel(persistence: CoreDataManager())
+        let addViewController = AddOrEditTodoListViewController(viewModel: viewModel)
+        addViewController.delegate = self 
+        return addViewController
+    }
+    
+    private func showAlert() {
+        let alert: UIAlertController = UIAlertController(title: "Error", message: "Not Found", preferredStyle: .alert)
+        let cancel: UIAlertAction = UIAlertAction(title: "Cancel", style: .cancel)
+        alert.addAction(cancel)
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
@@ -112,7 +139,7 @@ extension TodoListViewController: UITableViewDataSource {
 }
 
 extension TodoListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
             self?.viewModel.deleteTask(pos: indexPath.row)
             completionHandler(true)
@@ -125,3 +152,10 @@ extension TodoListViewController: UITableViewDelegate {
     }
 }
 
+extension TodoListViewController: AddOrEditDelegate {
+    func fetchNewTasks() {
+        viewModel.loadActivities()
+    }
+    
+    
+}
