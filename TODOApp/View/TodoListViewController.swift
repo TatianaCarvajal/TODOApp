@@ -33,6 +33,13 @@ class TodoListViewController: UIViewController {
         return button
     }()
     
+    private lazy var spinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView()
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
+    
     private let viewModel: TodoListViewModel
     var cancellables = Set<AnyCancellable>()
     
@@ -51,6 +58,7 @@ class TodoListViewController: UIViewController {
         setupNavBar()
         setupSuscribers()
         setupTableView()
+        setupSpinner()
         self.viewModel.loadActivities()
     }
     
@@ -70,9 +78,9 @@ class TodoListViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [ unowned self ] value in
                 if value {
-                    // TODO: show un spinner(ActivityIndicator) 
+                    self.spinner.startAnimating()
                 } else {
-                    // Stop spinner animation
+                    self.spinner.stopAnimating()
                 }
             }
             .store(in: &self.cancellables)
@@ -101,6 +109,13 @@ class TodoListViewController: UIViewController {
         self.tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: Constants.tableViewPadding.right).isActive = true
         self.tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.tableViewPadding.top).isActive = true
         self.tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: Constants.tableViewPadding.bottom).isActive = true
+    }
+    
+    private func setupSpinner() {
+        view.addSubview(self.spinner)
+        
+        self.spinner.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        self.spinner.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
     private func getAddOrEditViewController() -> AddOrEditTodoListViewController {
