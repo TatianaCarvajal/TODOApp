@@ -35,6 +35,11 @@ class TodoListViewModel {
         return item.activity
     }
     
+    func getTodoItem(pos: Int) -> TodoItem {
+        let item = activities[pos]
+        return item
+    }
+    
     func getFormattedDate(pos: Int) -> String {
         let item = activities[pos]
         let formatter = DateFormatter()

@@ -68,7 +68,7 @@ class TodoListViewController: UIViewController {
     
     @objc private func handleNavBarButton() {
         
-        let addOrEditViewController = self.getAddOrEditViewController()
+        let addOrEditViewController = self.getAddOrEditViewController(todoItem: nil)
         
         self.present(addOrEditViewController, animated: true)
     }
@@ -118,8 +118,8 @@ class TodoListViewController: UIViewController {
         self.spinner.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
     }
     
-    private func getAddOrEditViewController() -> AddOrEditTodoListViewController {
-        let viewModel = AddOrEditTodoListViewModel(persistence: CoreDataManager())
+    private func getAddOrEditViewController(todoItem: TodoItem?) -> AddOrEditTodoListViewController {
+        let viewModel = AddOrEditTodoListViewModel(persistence: CoreDataManager(), todoItem: todoItem)
         let addViewController = AddOrEditTodoListViewController(viewModel: viewModel)
         addViewController.delegate = self 
         return addViewController
@@ -164,6 +164,20 @@ extension TodoListViewController: UITableViewDelegate {
         let image = UIImage(systemName: "trash.circle.fill", withConfiguration: configuration)
         action.image = image
         return UISwipeActionsConfiguration(actions: [action])
+    }
+    
+    func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { [unowned self] action, view, completionHandler in
+            let editViewController = self.getAddOrEditViewController(todoItem: viewModel.getTodoItem(pos: indexPath.row))
+            self.present(editViewController, animated: true)
+        }
+        
+        editAction.backgroundColor = .blue
+        let configuration = UIImage.SymbolConfiguration(pointSize: 28)
+        let image = UIImage(systemName: "pencil.circle.fill", withConfiguration: configuration)
+        editAction.image = image
+        return UISwipeActionsConfiguration(actions: [editAction])
+    
     }
 }
 

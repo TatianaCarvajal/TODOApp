@@ -21,6 +21,7 @@ class AddOrEditTodoListViewController: UIViewController {
     
     private lazy var textField: UITextField = {
         let textField = UITextField()
+        textField.text = viewModel.todoItem?.activity
         textField.placeholder = "New task"
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 60))
         textField.leftViewMode = .always
@@ -37,7 +38,9 @@ class AddOrEditTodoListViewController: UIViewController {
         calendar.layer.cornerRadius = 12
         calendar.backgroundColor = .systemBackground
         calendar.translatesAutoresizingMaskIntoConstraints = false
-        calendar.selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
+        let selectionBehavior = UICalendarSelectionSingleDate(delegate: self)
+        selectionBehavior.selectedDate = Calendar.current.dateComponents([.day, .month, .year], from: viewModel.todoItem?.date ?? .now)
+        calendar.selectionBehavior = selectionBehavior
         return calendar
     }()
     
@@ -47,7 +50,6 @@ class AddOrEditTodoListViewController: UIViewController {
         button.setTitle("Add", for: .normal)
         button.setTitleColor(.black, for: .normal)
         button.layer.cornerRadius = 12
-        button.layer.borderWidth = 1
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
         
