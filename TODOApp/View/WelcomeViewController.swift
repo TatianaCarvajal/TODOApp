@@ -51,6 +51,8 @@ class WelcomeViewController: UIViewController {
         view.backgroundColor = UIColor(named: "backgroundColor")
         setupLabel()
         setupAnimationView()
+        UserDefaults.standard.set(true, forKey: "showedWelcomeMessage")
+        
     }
     
     private func setupLabel() {

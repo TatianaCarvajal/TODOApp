@@ -64,7 +64,11 @@ class TodoListViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        let showedWelcomeMessage = UserDefaults.standard.bool(forKey: "showedWelcomeMessage")
+        if showedWelcomeMessage == false {
             present(WelcomeViewController(), animated: true)
+        } 
+        
     }
     
     private func setupNavBar() {
