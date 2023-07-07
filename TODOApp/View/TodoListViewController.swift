@@ -62,6 +62,11 @@ class TodoListViewController: UIViewController {
         self.viewModel.loadActivities()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+            present(WelcomeViewController(), animated: true)
+    }
+    
     private func setupNavBar() {
         navigationItem.rightBarButtonItem = addButton
     }
