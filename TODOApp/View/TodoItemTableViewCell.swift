@@ -8,7 +8,6 @@
 import UIKit
 
 class TodoItemTableViewCell: UITableViewCell {
-    
     static let cellIdentifier = "TodoItemTableViewCell"
     
     private struct Constants {
@@ -30,7 +29,6 @@ class TodoItemTableViewCell: UITableViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
     
     private func setupLabel() {
         contentView.addSubview(taskLabel)

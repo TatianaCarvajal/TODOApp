@@ -21,7 +21,7 @@ class WelcomeViewController: UIViewController {
     private lazy var label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Bienvenido a TODOAPP"
+        label.text = "Welcome to TODOAPP"
         label.font = .systemFont(ofSize: 30, weight: .bold)
         label.backgroundColor = UIColor(named: "backgroundColor")
         label.textAlignment = .center
@@ -52,7 +52,6 @@ class WelcomeViewController: UIViewController {
         setupLabel()
         setupAnimationView()
         UserDefaults.standard.set(true, forKey: "showedWelcomeMessage")
-        
     }
     
     private func setupLabel() {
@@ -61,7 +60,6 @@ class WelcomeViewController: UIViewController {
         self.label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.labelViewPadding.left).isActive = true
         self.label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: Constants.labelViewPadding.right).isActive = true
         self.label.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constants.labelViewPadding.top).isActive = true
-        
     }
     
     private func setupAnimationView() {

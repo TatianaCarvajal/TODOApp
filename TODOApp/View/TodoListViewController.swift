@@ -59,7 +59,9 @@ class TodoListViewController: UIViewController {
         setupSuscribers()
         setupTableView()
         setupSpinner()
-        self.viewModel.loadActivities()
+        Task {
+            await self.viewModel.loadActivities()
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -67,18 +69,16 @@ class TodoListViewController: UIViewController {
         let showedWelcomeMessage = UserDefaults.standard.bool(forKey: "showedWelcomeMessage")
         if showedWelcomeMessage == false {
             present(WelcomeViewController(), animated: true)
-        } 
-        
+        }
     }
     
     private func setupNavBar() {
+        title = "TODO List"
         navigationItem.rightBarButtonItem = addButton
     }
     
     @objc private func handleNavBarButton() {
-        
         let addOrEditViewController = self.getAddOrEditViewController(todoItem: nil)
-        
         self.present(addOrEditViewController, animated: true)
     }
     
@@ -130,7 +130,7 @@ class TodoListViewController: UIViewController {
     private func getAddOrEditViewController(todoItem: TodoItem?) -> AddOrEditTodoListViewController {
         let viewModel = AddOrEditTodoListViewModel(persistence: CoreDataManager(), todoItem: todoItem)
         let addViewController = AddOrEditTodoListViewController(viewModel: viewModel)
-        addViewController.delegate = self 
+        addViewController.delegate = self
         return addViewController
     }
     
@@ -143,15 +143,12 @@ class TodoListViewController: UIViewController {
 }
 
 extension TodoListViewController: UITableViewDataSource {
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.viewModel.activities.count
     }
     
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: TodoItemTableViewCell.cellIdentifier, for: indexPath) as? TodoItemTableViewCell else {
-            
             return UITableViewCell()
         }
         
@@ -165,8 +162,10 @@ extension TodoListViewController: UITableViewDataSource {
 extension TodoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let action = UIContextualAction(style: .normal, title: "Delete") { [weak self] action, view, completionHandler in
-            self?.viewModel.deleteTask(pos: indexPath.row)
-            completionHandler(true)
+            Task {
+                await self?.viewModel.deleteTask(pos: indexPath.row)
+                completionHandler(true)
+            }
         }
         action.backgroundColor = .red
         let configuration = UIImage.SymbolConfiguration(pointSize: 28)
@@ -186,14 +185,13 @@ extension TodoListViewController: UITableViewDelegate {
         let image = UIImage(systemName: "pencil.circle.fill", withConfiguration: configuration)
         editAction.image = image
         return UISwipeActionsConfiguration(actions: [editAction])
-    
     }
 }
 
 extension TodoListViewController: AddOrEditDelegate {
     func fetchNewTasks() {
-        viewModel.loadActivities()
+        Task {
+            await viewModel.loadActivities()
+        }
     }
-    
-    
 }

@@ -8,7 +8,6 @@
 import Foundation
 
 class AddOrEditTodoListViewModel {
-    
     var persistence: PersistenceRepository
     var todoItem: TodoItem?
     var taskTitle: String = ""
@@ -19,6 +18,10 @@ class AddOrEditTodoListViewModel {
     init(persistence: PersistenceRepository, todoItem: TodoItem?) {
         self.persistence = persistence
         self.todoItem = todoItem
+        if let todoItem = todoItem {
+            update(todoItem.activity)
+            update(todoItem.date)
+        }
     }
     
     func update(_ title: String) {
@@ -29,39 +32,34 @@ class AddOrEditTodoListViewModel {
         taskDate = date
     }
     
-    func createTask() {
+    func createTask() async {
         if todoItem == nil {
-            createNewTask()
+            await createNewTask()
         } else {
-            updateTask()
+            await updateTask()
         }
     }
     
-    private func createNewTask() {
-        Task {
-            do {
-                try await persistence.createTodoItem(title: taskTitle, date: taskDate)
-                didCreateTask = true
-            } catch {
-                didCreateTask = false
-                self.error = error
-            }
+    private func createNewTask() async {
+        do {
+            try await persistence.createTodoItem(title: taskTitle, date: taskDate)
+            didCreateTask = true
+        } catch {
+            didCreateTask = false
+            self.error = error
         }
     }
     
-    private func updateTask() {
+    private func updateTask() async {
         guard let todoItem = todoItem else {
             return
         }
-        
-        Task {
-            do {
-                try await persistence.updateTodoItem(todoItem: todoItem, newTask: taskTitle, newDate: taskDate)
-                didCreateTask = true
-            } catch {
-                didCreateTask = false
-                self.error = error
-            }
+        do {
+            try await persistence.updateTodoItem(todoItem: todoItem, newTask: taskTitle, newDate: taskDate)
+            didCreateTask = true
+        } catch {
+            didCreateTask = false
+            self.error = error
         }
     }
 }

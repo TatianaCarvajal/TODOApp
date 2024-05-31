@@ -56,8 +56,6 @@ class AddOrEditTodoListViewController: UIViewController {
         return button
     }()
     
-    
-    
     let viewModel: AddOrEditTodoListViewModel
     var cancellables = Set<AnyCancellable>()
     
@@ -89,7 +87,9 @@ class AddOrEditTodoListViewController: UIViewController {
     }
     
     @objc private func buttonAction() {
-        viewModel.createTask()
+        Task {
+            await viewModel.createTask()
+        }
     }
     
     private func setupSuscribers() {
