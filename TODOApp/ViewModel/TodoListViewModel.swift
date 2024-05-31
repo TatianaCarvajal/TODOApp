@@ -18,16 +18,14 @@ class TodoListViewModel {
         self.persistence = persistence
     }
     
-    func loadActivities() {
+    func loadActivities() async {
         isRequestInFlight = true
-        Task {
-            do {
-                activities = try await persistence.getAllTodoItems()
-            } catch {
-                self.error = error
-            }
-            isRequestInFlight = false
+        do {
+            activities = try await persistence.getAllTodoItems()
+        } catch {
+            self.error = error
         }
+        isRequestInFlight = false
     }
     
     func getActivityTitle(pos: Int) -> String {
@@ -47,18 +45,14 @@ class TodoListViewModel {
         return formatter.string(from: item.date)
     }
     
-    func deleteTask(pos:Int) {
+    func deleteTask(pos:Int) async {
         isRequestInFlight = true
-        Task {
-            do {
-               try await persistence.deleteTodoItem(todoItem: activities[pos])
-                loadActivities()
-            } catch {
-                self.error = error
-            }
-            isRequestInFlight = false
+        do {
+            try await persistence.deleteTodoItem(todoItem: activities[pos])
+            await loadActivities()
+        } catch {
+            self.error = error
         }
+        isRequestInFlight = false
     }
-    
-    
 }
